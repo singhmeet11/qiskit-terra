@@ -23,16 +23,13 @@ from numpy import pi
 
 from qiskit.visualization.state_visualization import state_drawer
 from qiskit import BasicAer, execute 
+from qiskit import *
 from qiskit.test import QiskitTestCase
 from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister, transpile
 from qiskit.test.mock import FakeTenerife
-from qiskit.circuit.library import XGate, MCXGate, HGate, RZZGate, SwapGate, DCXGate, ZGate
-from qiskit.circuit.library import MCXVChain
-from qiskit.extensions import HamiltonianGate
-from qiskit.circuit import Parameter
-from qiskit.circuit.library import IQP
 from qiskit.quantum_info.random import random_unitary
 from qiskit.tools.visualization import HAS_MATPLOTLIB
+
 
 if HAS_MATPLOTLIB:
     from matplotlib.pyplot import close as mpl_close
@@ -62,7 +59,7 @@ class TestGraphMatplotlibDrawer(QiskitTestCase):
     def setUp(self):
         super().setUp()
         self.graph_drawer = TestGraphMatplotlibDrawer.save_data_wrap(
-            state_drawer, str(self)
+            state_drawer, str(self), filename
         )
 
     def tearDown(self):
@@ -74,10 +71,10 @@ class TestGraphMatplotlibDrawer(QiskitTestCase):
         """A wrapper to save the data from a test"""
 
         def wrapper(*args, **kwargs):
-            image_filename = kwargs["filename"]
+            image_filename = filename
             with cwd(RESULTDIR):
                 results = func(*args, **kwargs)
-                TestMatplotlibDrawer.save_data(image_filename, testname)
+                TestGraphMatplotlibDrawer.save_data(image_filename, testname)
             return results
 
         return wrapper
@@ -94,3 +91,17 @@ class TestGraphMatplotlibDrawer(QiskitTestCase):
         data[image_filename] = {"testname": testname}
         with open(datafilename, "w") as datafile:
             json.dump(data, datafile)
+
+    def test_plot_bloch_multivector(self):
+        """test bloch sphere 
+        See https://github.com/Qiskit/qiskit-terra/issues/6397.
+        """
+        circuit = QuantumCircuit(1)
+        circuit.h(0)
+
+        #getting the state using backend
+        backend = BasicAer.get_backend('statevector_simulator')
+        result = execute(circuit, backend).result()
+        state  = result.get_statevector(circuit)
+
+        self.state_drawer(state, output="bloch", filename="test_bloch_multivector.png")
