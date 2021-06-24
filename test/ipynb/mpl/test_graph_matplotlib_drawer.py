@@ -67,7 +67,7 @@ class TestGraphMatplotlibDrawer(QiskitTestCase):
         mpl_close("all")
 
     @staticmethod
-    def save_data_wrap(func, testname):
+    def save_data_wrap(func, testname, filename):
         """A wrapper to save the data from a test"""
 
         def wrapper(*args, **kwargs):
