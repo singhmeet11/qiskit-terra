@@ -105,3 +105,8 @@ class TestGraphMatplotlibDrawer(QiskitTestCase):
         state  = result.get_statevector(circuit)
 
         self.state_drawer(state, output="bloch", filename="test_bloch_multivector.png")
+
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=1)
