@@ -56,10 +56,11 @@ def cwd(path):
 class TestGraphMatplotlibDrawer(QiskitTestCase):
     """Graph MPL visualization"""
 
+
     def setUp(self):
         super().setUp()
         self.graph_drawer = TestGraphMatplotlibDrawer.save_data_wrap(
-            state_drawer, str(self), filename
+            state_drawer, filename=None, testname=str(self)
         )
 
     def tearDown(self):
@@ -67,13 +68,15 @@ class TestGraphMatplotlibDrawer(QiskitTestCase):
         mpl_close("all")
 
     @staticmethod
-    def save_data_wrap(func, testname, filename):
-        """A wrapper to save the data from a test"""
+    def save_data_wrap(func, filename, testname):
+        """A wrapper to save the data a test"""
 
         def wrapper(*args, **kwargs):
-            image_filename = filename
+            image_filename = kwargs["filename"]
             with cwd(RESULTDIR):
-                results = func(*args, **kwargs)
+                state=kwargs["state"]
+                output=kwargs["output"]
+                results = func(state, output)
                 TestGraphMatplotlibDrawer.save_data(image_filename, testname)
             return results
 
@@ -104,7 +107,7 @@ class TestGraphMatplotlibDrawer(QiskitTestCase):
         result = execute(circuit, backend).result()
         state  = result.get_statevector(circuit)
 
-        self.state_drawer(state, output="bloch", filename="test_bloch_multivector.png")
+        self.graph_drawer(state=state, output="bloch", filename="test_bloch_multivector.png")
 
 
 
